@@ -16,7 +16,7 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 - Hosting: GCP
 
 ## Contributing
-We welcome contributions from the community. To contribute to SevaBot, follow these steps:
+We welcome contributions from the community. To contribute to UdhaviBot, follow these steps:
 1. Fork the repository.
 2. Create a new branch: 
 ```bash
