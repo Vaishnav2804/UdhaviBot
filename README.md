@@ -34,5 +34,5 @@ git push origin feature/your-feature-name
 6. Open a pull request.
 
 ## Contact
-For any questions or feedback, please contact us at vaishnavvaidheeswaran@gmail.com.
+For any questions or feedback, please contact us at vaishnavvaidheeswaran@gmail.com
 
