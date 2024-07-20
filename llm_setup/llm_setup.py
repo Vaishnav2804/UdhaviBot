@@ -1,18 +1,15 @@
-from typing import Tuple, Optional, Any
+from typing import Tuple, Optional, List
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains import create_history_aware_retriever, create_retrieval_chain
 from langchain.chains.combine_documents import create_stuff_documents_chain
-from langchain_community.chat_message_histories import ChatMessageHistory
-from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.prompts import (
     ChatPromptTemplate,
-    MessagesPlaceholder,
     PromptTemplate,
+    HumanMessagePromptTemplate
 )
-from langchain_core.runnables.history import (
-    RunnableWithMessageHistory,
-    RunnablePassthrough,
-)
+from langchain_core.runnables import RunnablePassthrough
+from langchain_core.output_parsers import StrOutputParser
+from processing.documents import format_documents
+from langchain_core.vectorstores import VectorStoreRetriever
 
 
 def _initialize_llm() -> Tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
@@ -30,11 +27,12 @@ def _initialize_llm() -> Tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
 
 
 class LLMService:
-    def __init__(self, logger):
+    def __init__(self, logger, qa_system_prompt: str, web_retriever: VectorStoreRetriever):
         self._conversational_rag_chain = None
         self.error = None
-        self._store = {}
         self._logger = logger
+        self.qa_system_prompt = qa_system_prompt
+        self._web_retriever = web_retriever
 
         self.llm, error = _initialize_llm()
         if error:
@@ -46,25 +44,7 @@ class LLMService:
             self.error = error
             return
 
-    def _get_session_history(self, session_id: str) -> BaseChatMessageHistory:
-        """
-        Retrieves the session history for a given session ID.
-
-        Args:
-            session_id (str): The session ID.
-
-        Returns:
-            BaseChatMessageHistory: The session history.
-        """
-        try:
-            if session_id not in self._store:
-                self._store[session_id] = ChatMessageHistory()
-            return self._store[session_id]
-        except Exception as e:
-            self._logger.error(f"Exception in _get_session_history: {e}")
-            raise
-
-    def _initialize_conversational_rag_chain(self) -> Optional[str]:
+    def _initialize_conversational_rag_chain(self) -> str | None:
         """
         Initializes the conversational RAG chain.
 
@@ -72,54 +52,16 @@ class LLMService:
             An error message (if any).
         """
         try:
-            # Initialize history-aware retriever
-            contextualize_q_prompt = ChatPromptTemplate.from_messages(
-                [
-                    ("system", """Given a chat history and the latest user question \
-        which might reference context in the chat history, formulate a standalone question \
-        which can be understood without the chat history. Do NOT answer the question, \
-        just reformulate it if needed and otherwise return it as is."""),
-                    MessagesPlaceholder("chat_history"),
-                    ("human", "{input}"),
-                ]
-            )
-
-            web_retriever = None  # Assuming this needs to be defined or passed somehow
-            history_aware_retriever = create_history_aware_retriever(
-                self.llm, web_retriever, contextualize_q_prompt
-            )
-
             # Initialize RAG (Retrieval-Augmented Generation) chain
-            qa_system_prompt = ("""
-            Context: {context}.
-            Input:{input}.
-            
-            You are a chatbot to assist and empower you by providing valuable information on 
-            various government policies related to education, healthcare (with a focus on maternal and children), 
-            agriculture, and insurance. Use context and answer within the 
-            context only. If any questions are asked beyond the context, say "I don't know."
-            """)
-
-            qa_prompt = ChatPromptTemplate.from_messages(
-                [
-                    ("system", qa_system_prompt),
-                    MessagesPlaceholder("chat_history"),
-                    ("human", "{input}"),
-                ]
-            )
-            question_answer_chain = create_stuff_documents_chain(self.llm, qa_prompt)
-
-            rag_chain = create_retrieval_chain(
-                history_aware_retriever, question_answer_chain
-            )
+            prompt = ChatPromptTemplate(input_variables=['context', 'question'], messages=[HumanMessagePromptTemplate(
+                prompt=PromptTemplate(input_variables=['context', 'question'], template=self.qa_system_prompt))])
 
             # Initialize conversational RAG chain
-            self._conversational_rag_chain = RunnableWithMessageHistory(
-                rag_chain,
-                self._get_session_history,
-                input_messages_key="input",
-                history_messages_key="chat_history",
-                output_messages_key="answer",
+            self._conversational_rag_chain = (
+                    {"context": self._web_retriever | format_documents, "question": RunnablePassthrough()}
+                    | prompt
+                    | self.llm
+                    | StrOutputParser()
             )
 
             return None
@@ -129,7 +71,7 @@ class LLMService:
     def conversational_rag_chain(self):
         return self._conversational_rag_chain
 
-    def get_llm(self) -> Tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
+    def get_llm(self) -> tuple[ChatGoogleGenerativeAI, None] | tuple[None, str]:
         """
         Returns the LLM instance.
 
