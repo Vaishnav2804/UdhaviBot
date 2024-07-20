@@ -1,4 +1,4 @@
-# UdhaviBot (உதவிBot - HelpBot) 
+# UdhaviBot (உதவிBot - உதவி பொறி - HelpBot) 
 
 UdhaviBot is a chatbot designed to assist and empower underserved individuals by providing information on government policies related to education, healthcare (with a focus on maternal and children), agriculture, and insurance. The chatbot aims to bridge the information gap and help users access the support and resources they need.
 
