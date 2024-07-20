@@ -1,10 +1,25 @@
 # services/api_service.py
-
 import requests
-from typing import List, Tuple
 
 
-def fetch_schemes(base_url: str, total_results: int, max_size: int, headers: dict) -> Tuple[List[str], str]:
+def fetch_schemes(base_url: str, total_results: int, max_size: int, headers: dict) -> tuple[list[str], str]:
+    """
+    Fetches a paginated list of scheme slugs from an API.
+
+    This function iteratively retrieves data in chunks from the specified API endpoint.
+
+    Args:
+        base_url (str): The base URL of the API endpoint.
+        total_results (int): The total number of results expected.
+        max_size (int): The maximum number of results to fetch per request.
+        headers (dict): A dictionary of headers to include in the request.
+
+    Returns:
+        tuple: A tuple containing:
+            - list[str]: A list of extracted scheme slugs.
+            - str (optional): A semicolon-separated string of error messages encountered during fetching,
+                or None if no errors occurred.
+    """
     slugs = []
     error_messages = []
 

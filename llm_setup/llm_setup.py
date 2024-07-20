@@ -1,6 +1,5 @@
-from typing import Tuple, Optional, List
+from typing import Optional
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.chains.combine_documents import create_stuff_documents_chain
 from langchain_core.prompts import (
     ChatPromptTemplate,
     PromptTemplate,
@@ -12,12 +11,14 @@ from processing.documents import format_documents
 from langchain_core.vectorstores import VectorStoreRetriever
 
 
-def _initialize_llm() -> Tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
+def _initialize_llm() -> tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
     """
     Initializes the LLM instance.
 
     Returns:
-        A tuple containing the LLM instance and an error message (if any).
+        A tuple containing:
+        - The initialized ChatGoogleGenerativeAI instance if successful, otherwise None.
+        - An error message as a string if initialization fails, otherwise None.
     """
     try:
         llm = ChatGoogleGenerativeAI(model="gemini-pro")
@@ -27,6 +28,15 @@ def _initialize_llm() -> Tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
 
 
 class LLMService:
+    """
+    Service for managing LLM interactions and conversational RAG chain.
+
+    Args:
+        logger: Logger instance for logging.
+        qa_system_prompt: The prompt for the QA system.
+        web_retriever: A VectorStoreRetriever instance for retrieving web documents.
+    """
+
     def __init__(self, logger, qa_system_prompt: str, web_retriever: VectorStoreRetriever):
         self._conversational_rag_chain = None
         self.error = None
@@ -49,7 +59,7 @@ class LLMService:
         Initializes the conversational RAG chain.
 
         Returns:
-            An error message (if any).
+            An error message as a string if initialization fails, otherwise None.
         """
         try:
             # Initialize RAG (Retrieval-Augmented Generation) chain
@@ -69,6 +79,12 @@ class LLMService:
             return str(e)
 
     def conversational_rag_chain(self):
+        """
+        Returns the initialized conversational RAG chain.
+
+        Returns:
+            The conversational RAG chain instance.
+        """
         return self._conversational_rag_chain
 
     def get_llm(self) -> tuple[ChatGoogleGenerativeAI, None] | tuple[None, str]:
