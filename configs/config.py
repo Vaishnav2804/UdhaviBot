@@ -31,6 +31,8 @@ EMBEDDINGS = HuggingFaceEmbeddings(
     model_kwargs={"device": "cpu"},
 )
 
+START_WEB_SCRAPING_MYSCHEMES = False
+
 
 def set_envs():
     if "GOOGLE_API_KEY" not in os.environ:

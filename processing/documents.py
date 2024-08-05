@@ -1,7 +1,8 @@
 from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_core.documents import Document
-from typing import Iterable
+from typing import Iterable, List
+import json
+from langchain.schema import Document
 
 
 def load_documents(website: str) -> list[Document]:
@@ -43,3 +44,33 @@ def split_documents(documents: Iterable[Document]) -> list[Document]:
     """
     text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=100)
     return text_splitter.split_documents(documents)
+
+
+def load_json_to_langchain_document_schema(file_path: str) -> List[Document]:
+    """
+    Reads a JSON file and returns a list of Document objects.
+
+    Args:
+        file_path (str): The path to the JSON file.
+
+    Returns:
+        List[Document]: A list of Document objects from the JSON file.
+    """
+    documents = []
+    try:
+        with open(file_path, 'r', encoding='utf-8') as file:
+            data = json.load(file)
+            if isinstance(data, list):
+                documents = [Document(**doc) for doc in data if isinstance(doc, dict)]
+            else:
+                raise ValueError("JSON file does not contain a list.")
+    except FileNotFoundError:
+        print(f"Error: The file '{file_path}' was not found.")
+    except json.JSONDecodeError:
+        print(f"Error: Failed to decode JSON from the file '{file_path}'.")
+    except ValueError as ve:
+        print(f"Error: {ve}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+
+    return documents

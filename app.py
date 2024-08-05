@@ -1,7 +1,9 @@
 import logging
 from llm_setup.llm_setup import LLMService
 import configs.config as config
-from services.scraper import scrape_and_get_store_vector_retriever
+import scraper as scraper
+import processing.documents as document_processing
+from stores.chroma import store_embeddings
 
 if __name__ == '__main__':  # Entry point for the script
     logger = logging.getLogger()  # Create a logger object
@@ -9,20 +11,26 @@ if __name__ == '__main__':  # Entry point for the script
 
     config.set_envs()  # Set environment variables using the config module
 
+    if config.START_WEB_SCRAPING_MYSCHEMES:
+        scraper.scrape_and_store_to_json_file()
+
+    # convert contents from json file to list of Documents of langchain schema type
+    documents = document_processing.load_json_to_langchain_document_schema("myschemes_scraped.json")
+
     # Scrape data and get the store vector retriever
-    store_vector_retriever, error = scrape_and_get_store_vector_retriever()
-    if error:  # Check if there was an error in scraping and embedding
-        print(f"Error in embedding contents: {error}")  # Print the error message
-        exit(0)  # Exit the script
+    retriever = store_embeddings(documents, config.EMBEDDINGS)
 
     # Define the prompt template for the chatbot
-    prompt = """
-    You are a chatbot to assist under-deserved people with government schemes. 
-    Use this Context: {context} and answer for this query in a simple manner: {question}
-    """
+    prompt = """You are an expert chatbot trained to provide detailed and accurate information about Indian 
+    government schemes. Your task is to assist users by answering questions related to various government schemes 
+    such as those for education, healthcare, agriculture, and insurance. When responding, ensure that your answers 
+    are clear, informative, and based on the most recent and relevant information. If the user asks about 
+    eligibility, application processes, or benefits, provide specific details and guide them through the necessary 
+    steps if applicable. Always aim to offer helpful and precise responses tailored to their needs. Use this Context: 
+    {context} and answer for this query in a simple manner: {question}"""
 
     # Initialize the LLMService with logger, prompt, and store vector retriever
-    llm_svc = LLMService(logger, prompt, store_vector_retriever)
+    llm_svc = LLMService(logger, prompt, retriever)
     if llm_svc.error is not None:  # Check if there was an error in initializing the LLMService
         print(f"Error in initializing llm service: {llm_svc.error}")
         exit(0)  # Exit the script
