@@ -1,6 +1,7 @@
 from fastapi import FastAPI, File, UploadFile, HTTPException, Form
 from pydantic import BaseModel
 import logging
+from fastapi.middleware.cors import CORSMiddleware
 
 # Import your existing modules
 from llm_setup.llm_setup import LLMService
@@ -11,6 +12,8 @@ from stores.chroma import store_embeddings
 import speech_to_text.gemini as gemini
 
 app = FastAPI()
+app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"],
+                   allow_headers=["*"])
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -41,11 +44,6 @@ if llm_svc.error is not None:
     logger.error(f"Error initializing LLM service: {llm_svc.error}")
 
 llm = llm_svc.get_llm()
-
-
-class AudioResponse(BaseModel):
-    response: str
-
 
 @app.post("/chat")
 async def chat(
@@ -80,7 +78,7 @@ async def chat(
         else:
             translated_response = response
 
-        return AudioResponse(response=translated_response)
+        return translated_response
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
