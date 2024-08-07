@@ -5,7 +5,7 @@ import logging
 # Import your existing modules
 from llm_setup.llm_setup import LLMService
 import configs.config as config
-import scraper as scraper
+import scraper
 import processing.documents as document_processing
 from stores.chroma import store_embeddings
 import speech_to_text.gemini as gemini
@@ -18,6 +18,7 @@ logger.setLevel(logging.INFO)
 # Set environment variables
 config.set_envs()
 
+# Start web scraping if configured
 if config.START_WEB_SCRAPING_MYSCHEMES:
     scraper.scrape_and_store_to_json_file()
 
@@ -37,7 +38,7 @@ steps if applicable. Always aim to offer helpful and precise responses tailored 
 # Initialize the LLMService
 llm_svc = LLMService(logger, prompt, retriever)
 if llm_svc.error is not None:
-    logger.error(f"Error in initializing llm service: {llm_svc.error}")
+    logger.error(f"Error initializing LLM service: {llm_svc.error}")
 
 llm = llm_svc.get_llm()
 
@@ -52,38 +53,22 @@ async def chat(
         file: UploadFile = File(None)
 ):
     try:
-        user_input = ""
-        user_language = ""
-        if file is not None:
-            input_type = "audio"
-        else:
-            input_type = "text"
-
-        if input_type == "text":
-            if not text:
-                raise HTTPException(status_code=400, detail="Text input is required for text type")
-
-            user_input = text
-            user_language = llm.invoke(f"Just return me the language of the text: {user_input}")
-
-        if input_type == "audio":
-            if not file:
-                raise HTTPException(status_code=400, detail="Audio file is required for audio type")
-
-            # Read the audio file
+        if file:
+            # Handle audio input
             audio_data = await file.read()
-
-            # Save the uploaded file as output.wav
             file_location = "output.wav"
             with open(file_location, "wb") as f:
                 f.write(audio_data)
 
-            # Convert speech to text
-            response_dict = gemini.speech_to_text()  # Update your method to accept file location
+            response_dict = gemini.speech_to_text()
             user_language = response_dict['language']
             user_input = response_dict['text']
+        elif text:
+            # Handle text input
+            user_input = text
+            user_language = llm.invoke(f"Just return me the language of the text: {user_input}")
         else:
-            raise HTTPException(status_code=400, detail="Invalid input type specified")
+            raise HTTPException(status_code=400, detail="Either text or audio file is required")
 
         # Invoke the conversational RAG chain with the user's input
         response = llm_svc.conversational_rag_chain().invoke(user_input)
