@@ -10,8 +10,7 @@ def speech_to_text() -> dict:
     speech_to_text_prompt = """Convert the speech of the following audio file into english text. 
     Strictly Give the output in a json format:
     language:"Original audio language",text :"Proper english translated text such that an englishman can understand."
-    Do not give the json in delimiters.
-    """
+   """
     response = model.generate_content([speech_to_text_prompt, audio_file])
     response = response.text
     response_list = response.splitlines()

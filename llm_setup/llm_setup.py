@@ -29,16 +29,6 @@ def _initialize_llm(model: str) -> tuple[Optional[ChatGoogleGenerativeAI], Optio
         return None, str(e)
 
 
-def _initialize_vertex_ai(model: str) -> ChatVertexAI:
-    llm = ChatVertexAI(
-        model="gemini-1.5-flash",
-        temperature=0,
-        max_tokens=None,
-        max_retries=5,
-        stop=None)
-    return llm
-
-
 class LLMService:
     """
     Service for managing LLM interactions and conversational RAG chain.
@@ -57,7 +47,6 @@ class LLMService:
         self._web_retriever = web_retriever
 
         self.llm, error = _initialize_llm("gemini-pro")
-        self.multi_model_llm = _initialize_vertex_ai("gemini-1.5-flash")
         if error:
             self.error = error
             return
@@ -102,6 +91,3 @@ class LLMService:
 
     def get_llm(self) -> ChatGoogleGenerativeAI:
         return self.llm
-
-    def get_multi_model_llm(self) -> ChatVertexAI:
-        return self.multi_model_llm
