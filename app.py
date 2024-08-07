@@ -45,6 +45,7 @@ if llm_svc.error is not None:
 
 llm = llm_svc.get_llm()
 
+
 @app.post("/chat")
 async def chat(
         text: str = Form(None),
