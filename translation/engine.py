@@ -1,13 +1,10 @@
-import json
-
-
 import pyaudio
 import wave
 import time
 from pynput import keyboard
 
 # Configuration dictionary for pyaudio settings
-pyconf = {"frames_per_buffer":1024, "rate":48000, "channels":1}
+pyconf = {"frames_per_buffer": 1024, "rate": 48000, "channels": 1}
 
 
 def on_press():
@@ -47,22 +44,3 @@ def record_audio():
     wf.writeframes(b''.join(frames))
     wf.close()
     print("Recording Saved")
-
-
-
-def ask_question_to_llm(context):
-    context_dict = json.loads(context)
-    genai.configure(api_key=key)
-    model = genai.GenerativeModel(model_name="gemini-pro")
-    questionprompt = f'Respond to the user with an informative answer in {context_dict["language"]}'
-    response = model.generate_content([questionprompt, context_dict["text"]])
-    return response.text
-
-
-if __name__ == "__main__":
-    record_audio()
-    context = speech_to_text()
-    print("THE QUESTION WAS\n")
-    print(context)
-    print("\n\nTHE ANSWER IS \n")
-    print(ask_question_to_llm(context))
