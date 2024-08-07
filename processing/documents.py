@@ -3,6 +3,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from typing import Iterable, List
 import json
 from langchain.schema import Document
+from langchain_community.document_loaders import JSONLoader
 
 
 def load_documents(website: str) -> list[Document]:
@@ -56,21 +57,10 @@ def load_json_to_langchain_document_schema(file_path: str) -> List[Document]:
     Returns:
         List[Document]: A list of Document objects from the JSON file.
     """
-    documents = []
-    try:
-        with open(file_path, 'r', encoding='utf-8') as file:
-            data = json.load(file)
-            if isinstance(data, list):
-                documents = [Document(**doc) for doc in data if isinstance(doc, dict)]
-            else:
-                raise ValueError("JSON file does not contain a list.")
-    except FileNotFoundError:
-        print(f"Error: The file '{file_path}' was not found.")
-    except json.JSONDecodeError:
-        print(f"Error: Failed to decode JSON from the file '{file_path}'.")
-    except ValueError as ve:
-        print(f"Error: {ve}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+    loader = JSONLoader(
+        file_path=file_path,
+        jq_schema='.[]',
+        text_content=False)
 
+    documents = loader.load()
     return documents

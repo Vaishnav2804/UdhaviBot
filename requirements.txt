@@ -134,3 +134,6 @@ websockets
 wrapt
 yarl
 zipp
+pynput
+pyaudio
+jq

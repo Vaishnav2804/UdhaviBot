@@ -1,31 +1,33 @@
-import pyaudio
-import wave
-from pynput import keyboard
-import time
-from config import pyaudio_configs as pyconf
-from config import gemini_api_key as key
-import google.generativeai as genai
 import json
 
 
-def on_press(keys):
-    return False  # returning false stops the listener
+import pyaudio
+import wave
+import time
+from pynput import keyboard
+
+# Configuration dictionary for pyaudio settings
+pyconf = {"frames_per_buffer":1024, "rate":48000, "channels":1}
+
+
+def on_press():
+    return False  # Stop listener on any key press
 
 
 def record_audio():
-    format = pyaudio.paInt24
+    pyaudio_format = pyaudio.paInt16  # Changed to paInt16 for better compatibility
 
     listener = keyboard.Listener(on_press=on_press)
     listener.start()
     p = pyaudio.PyAudio()
 
-    stream = p.open(format=format, channels=pyconf["channels"], rate=pyconf["rate"], input=True,
+    stream = p.open(format=pyaudio_format, channels=pyconf["channels"], rate=pyconf["rate"], input=True,
                     frames_per_buffer=pyconf["frames_per_buffer"])
 
     print("Ask your question. Press any key to stop.")
 
     frames = []
-    timeout = time.time() + 20
+    timeout = time.time() + 20  # 20 seconds timeout
 
     while listener.running:
         data = stream.read(pyconf["frames_per_buffer"])
@@ -40,27 +42,12 @@ def record_audio():
 
     wf = wave.open("output.wav", 'wb')
     wf.setnchannels(pyconf["channels"])
-    wf.setsampwidth(p.get_sample_size(format))
+    wf.setsampwidth(p.get_sample_size(pyaudio_format))
     wf.setframerate(pyconf["rate"])
     wf.writeframes(b''.join(frames))
     wf.close()
     print("Recording Saved")
 
-
-def speech_to_text():
-    genai.configure(api_key=key)
-    audio_file = genai.upload_file(path='output.wav')
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-    sttprompt = """Convert the speech of the following audio file into english text. Give the output in a json format:
-    language:"Original audio language" and text :"Proper english translate text such that an englishman can understand" 
-    """
-    response = model.generate_content([sttprompt, audio_file])
-    response = response.text
-    response_list = response.splitlines()
-    response_list.pop(0)
-    response_list.pop(-1)
-    response = "\n".join(response_list)
-    return response
 
 
 def ask_question_to_llm(context):

@@ -1,4 +1,6 @@
 from typing import Optional
+from langchain_google_vertexai import ChatVertexAI
+
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import (
     ChatPromptTemplate,
@@ -11,7 +13,7 @@ from processing.documents import format_documents
 from langchain_core.vectorstores import VectorStoreRetriever
 
 
-def _initialize_llm() -> tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
+def _initialize_llm(model: str) -> tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
     """
     Initializes the LLM instance.
 
@@ -21,10 +23,20 @@ def _initialize_llm() -> tuple[Optional[ChatGoogleGenerativeAI], Optional[str]]:
         - An error message as a string if initialization fails, otherwise None.
     """
     try:
-        llm = ChatGoogleGenerativeAI(model="gemini-pro")
+        llm = ChatGoogleGenerativeAI(model=model)
         return llm, None
     except Exception as e:
         return None, str(e)
+
+
+def _initialize_vertex_ai(model: str) -> ChatVertexAI:
+    llm = ChatVertexAI(
+        model="gemini-1.5-flash",
+        temperature=0,
+        max_tokens=None,
+        max_retries=5,
+        stop=None)
+    return llm
 
 
 class LLMService:
@@ -44,7 +56,8 @@ class LLMService:
         self.qa_system_prompt = qa_system_prompt
         self._web_retriever = web_retriever
 
-        self.llm, error = _initialize_llm()
+        self.llm, error = _initialize_llm("gemini-pro")
+        self.multi_model_llm = _initialize_vertex_ai("gemini-1.5-flash")
         if error:
             self.error = error
             return
@@ -87,14 +100,8 @@ class LLMService:
         """
         return self._conversational_rag_chain
 
-    def get_llm(self) -> tuple[ChatGoogleGenerativeAI, None] | tuple[None, str]:
-        """
-        Returns the LLM instance.
+    def get_llm(self) -> ChatGoogleGenerativeAI:
+        return self.llm
 
-        Returns:
-            A tuple containing the LLM instance and an error message (if any).
-        """
-        if self.llm is None:
-            return None, "LLM not initialized"
-
-        return self.llm, None
+    def get_multi_model_llm(self) -> ChatVertexAI:
+        return self.multi_model_llm

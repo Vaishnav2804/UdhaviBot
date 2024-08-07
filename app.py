@@ -4,6 +4,8 @@ import configs.config as config
 import scraper as scraper
 import processing.documents as document_processing
 from stores.chroma import store_embeddings
+import tranlsation.engine as tranlsation_engine
+import speech_to_text.gemini as gemini
 
 if __name__ == '__main__':  # Entry point for the script
     logger = logging.getLogger()  # Create a logger object
@@ -35,10 +37,22 @@ if __name__ == '__main__':  # Entry point for the script
         print(f"Error in initializing llm service: {llm_svc.error}")
         exit(0)  # Exit the script
 
+    llm = llm_svc.get_llm()
+
     try:
+        tranlsation_engine.record_audio()
+        response_dict = gemini.speech_to_text()
+        user_language = response_dict['language']
+        user_input = response_dict['text']
         # Invoke the conversational RAG chain with a sample query
-        response = llm_svc.conversational_rag_chain().invoke("Tell me what you know")
+        response = llm_svc.conversational_rag_chain().invoke("user_input")
+        if user_language.lower() != "english":
+            translated_response = llm.invoke(f"Translate the given text to {user_language}: {response}")
+            translated_response = translated_response.content
+        else:
+            translated_response = response
         print(str(response))
+        print(str(translated_response))
 
     except Exception as e:  # Catch any exceptions that occur
         print(str(e))  # Print the exception message
