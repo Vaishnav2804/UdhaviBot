@@ -129,7 +129,7 @@ async def chat(
         raise HTTPException(status_code=500, detail="An internal error occurred")
 
 
-@app.get("/download_file")
+@app.get("/download")
 def download_file():
     file_path = "output.mp3"  # Replace with the actual file path
     return FileResponse(file_path, media_type="audio/mpeg", filename="output.mp3")
