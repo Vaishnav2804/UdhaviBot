@@ -10,6 +10,7 @@ import scraper
 import processing.documents as document_processing
 from stores.chroma import store_embeddings
 import speech_to_text.gemini as gemini
+import json
 
 app = FastAPI()
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_credentials=True, allow_methods=["*"],
@@ -52,9 +53,6 @@ async def chat(
         file: UploadFile = File(None)
 ):
     try:
-        user_input = ""
-        user_language_code = ""
-        user_language = ""
         if file:
             # Handle audio input
             audio_data = await file.read()
@@ -72,28 +70,27 @@ async def chat(
                                         language:"Original audio language", text :"Proper english translation of the 
                                         question such that an englishman can understand, language_code: Google Text to Speech language code of the original 
                                         language that the question was asked in" : """)
-            llm_response = response.text
-            llm_response_list = response.splitlines()
+            llm_response_list = llm_response.content.splitlines()
             llm_response_list.pop(0)
             llm_response_list.pop(-1)
-            llm_response = "\n".join(response_list)
+            resp = "\n".join(llm_response_list)
             try:
-                response_dict = json.loads(response)
+                response_dict = json.loads(resp)
             except Exception as e:
-                print("Error while converting to dictionary"+e.__str__())
+                print("Error while converting to dictionary" + e.__str__())
                 raise e
         else:
             raise HTTPException(status_code=400, detail="Either text or audio file is required")
 
         user_language = response_dict['language']
         user_input = response_dict['text']
-        user_language_code  = response_dict["language_code"]
+        user_language_code = response_dict["language_code"]
 
         user_input += f'Strictly give me the answer in {user_language}'
         # Invoke the conversational RAG chain with the user's input
         response = llm_svc.conversational_rag_chain().invoke(user_input)
 
-        
+        gemini.tts(response, user_language_code)
 
         return response
 
@@ -101,7 +98,6 @@ async def chat(
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An internal error occurred")
 
-    gemini.tts(response.text,user_language_code)
 
 if __name__ == "__main__":
     import uvicorn

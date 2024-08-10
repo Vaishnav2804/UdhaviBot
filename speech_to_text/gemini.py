@@ -22,11 +22,12 @@ def speech_to_text() -> dict:
     try:
         response_dict = json.loads(response)
     except Exception as e:
-        print("Error while converting to dictionary"+e.__str__())
+        print("Error while converting to dictionary" + e.__str__())
         raise e
     return response_dict
 
-def tts(message,language):
+
+def tts(message, language):
     client = texttospeech.TextToSpeechClient()
     synthesis_input = texttospeech.SynthesisInput(text=message)
     voice = texttospeech.VoiceSelectionParams(
@@ -35,7 +36,7 @@ def tts(message,language):
     audio_config = texttospeech.AudioConfig(
         audio_encoding=texttospeech.AudioEncoding.MP3
     )
-    response = client.synthesize_speech(    
+    response = client.synthesize_speech(
         input=synthesis_input, voice=voice, audio_config=audio_config
     )
     with open("output.mp3", "wb") as out:
@@ -44,4 +45,3 @@ def tts(message,language):
 
     song = AudioSegment.from_mp3("output.mp3")
     play(song)
- 
