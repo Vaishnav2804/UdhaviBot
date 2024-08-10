@@ -10,8 +10,10 @@ def speech_to_text() -> dict:
 
     audio_file = genai.upload_file(path='output.wav')
     model = genai.GenerativeModel(model_name="gemini-1.5-flash")
-    speech_to_text_prompt = """Convert the speech of the following audio file into english text. Give the output in a json format:
-    language:"Original audio language", text :"Proper english translation of the question such that an englishman can understand, language_code: Google Text to Speech language code of the original language that the question was asked in" 
+    speech_to_text_prompt = """Use the audio for the following and provide a JSON response with the following keys:
+            * language: The language of the input text.
+            * text: A proper English translation understandable by a native English speaker.
+            * language_code: The equivalent Google Cloud Platform language code for text-to-speech. 
     """
     response = model.generate_content([speech_to_text_prompt, audio_file])
     response = response.text
@@ -43,5 +45,5 @@ def tts(message, language):
         out.write(response.audio_content)
         print('Audio content written to file "output.mp3"')
 
-    song = AudioSegment.from_mp3("output.mp3")
-    play(song)
+    # song = AudioSegment.from_mp3("output.mp3")
+    # play(song)

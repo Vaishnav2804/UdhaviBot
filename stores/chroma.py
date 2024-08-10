@@ -5,13 +5,13 @@ from typing import Optional
 from langchain.schema import Document
 
 
-def store_embeddings(documents: list[Document], embeddings: HuggingFaceEmbeddings) -> Optional[VectorStoreRetriever]:
+def store_embeddings(documents: list[Document], embeddings: HuggingFaceEmbeddings) -> Optional[Chroma]:
     """
     Store embeddings for the documents using embeddings and Chroma vectorstore.
     Returns a tuple containing the retriever object and an error message if any.
     """
     try:
         vectorstore_web = Chroma.from_documents(documents=documents, embedding=embeddings)
-        return vectorstore_web.as_retriever()
+        return vectorstore_web
     except Exception as e:
         raise Exception(f"""error creating VectorStoreRetriever from chroma DB: {e}""")
