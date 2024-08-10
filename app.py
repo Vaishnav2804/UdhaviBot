@@ -43,14 +43,21 @@ class Language(BaseModel):
 
 
 # Define the prompt template for the chatbot
-prompt = """You are an expert chatbot trained to provide detailed and accurate information about Indian government 
-schemes. Your task is to assist users by answering questions related to various government schemes such as those for 
+prompt = """You are an expert chatbot designed to provide detailed, accurate, and up-to-date information about Indian 
+government schemes. Your role is to assist users with inquiries related to government programs in areas such as 
 education, healthcare, agriculture, and insurance. When responding, ensure that your answers are clear, informative, 
-and based on the most recent and relevant information. If the user asks about eligibility, application processes, 
-or benefits, provide specific details and guide them through the necessary steps if applicable. Always aim to offer 
-helpful and precise responses tailored to their needs. Use this Context: {context} and answer for this query in a 
-simple manner: {question}. Strictly accept questions within context. Give a detailed response to the user. The output 
-will be used by a conversational robot, so just give output in simple text format."""
+and grounded in the most recent and relevant information.
+
+If a user asks about eligibility, application processes, or benefits, provide specific and actionable details, 
+guiding them through any necessary steps if applicable. Always strive to offer helpful, precise responses tailored to 
+the user’s needs.
+
+Strictly In response include the scheme name, url, details, benefits, documents required and application process.
+
+Use the provided context: {context} to inform your answer. Respond to the user's query: {question} in a 
+straightforward and simple manner (not in any markdown format). Only accept and respond to questions within the given 
+context. The response should be in simple text format, suitable for use by a conversational robot. 
+Do not add any markdown format."""
 
 # Initialize the LLMService
 llm_svc = LLMService(logger, prompt, retriever)
@@ -77,13 +84,14 @@ async def chat(
 ):
     try:
         if file:
-            # Handle audio input
+
             audio_data = await file.read()
             file_location = "output.wav"
             with open(file_location, "wb") as f:
                 f.write(audio_data)
 
-            response_dict = gemini.speech_to_text()
+            gemini_resp = gemini.speech_to_text()
+            response_dict = json_chain.invoke({"query": gemini_resp})
 
         elif text:
             # Handle text input
@@ -109,20 +117,39 @@ async def chat(
         user_input = response_dict['text']
         user_language_code = response_dict["language_code"]
 
-        docs = chroma.similarity_search("user_input")
+        docs = chroma.similarity_search(user_input)
         context = ""
         for doc in docs:
             context += doc.page_content
 
-        user_input += (f'Strictly give me the answer in {user_language}. More Context For your reference:{context}. If '
-                       f'the context is not empty, frame an answer from that.')
+        if context == "":
+            return "I don't have an answer to this question."
 
-        # Invoke the conversational RAG chain with the user's input
-        response = llm_svc.conversational_rag_chain().invoke(user_input)
+        print(f"Context is: {context}")
 
-        gemini.tts(response, user_language_code)
+        prompt = f"""You are an expert chatbot designed to provide detailed, accurate, and up-to-date information about Indian 
+        government schemes. Your role is to assist users with inquiries related to government programs in areas such as 
+        education, healthcare, agriculture, and insurance. When responding, ensure that your answers are clear, informative, 
+        and grounded in the most recent and relevant information.
+        
+        If a user asks about eligibility, application processes, or benefits, provide specific and actionable details, 
+        guiding them through any necessary steps if applicable. Always strive to offer helpful, precise responses tailored to 
+        the user’s needs.
+        
+        Strictly In response include the scheme name, url, details, benefits, documents required and application process.
+        
+        Use the provided context: {context} to inform your answer. Respond to the user's query: {user_input} in a 
+        straightforward and simple manner (not in any markdown format). The response should be in simple text format, 
+        suitable for use by a conversational robot."""
+        prompt += f'Strictly give me the answer in {user_language}'
 
-        return {"Data": response}
+        # response = llm_svc.conversational_rag_chain().invoke(user_input)
+
+        response = llm.invoke(prompt)
+
+        gemini.tts(response.content, user_language_code)
+
+        return response.content
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")

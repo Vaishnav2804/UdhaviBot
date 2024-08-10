@@ -46,7 +46,7 @@ class LLMService:
         self.qa_system_prompt = qa_system_prompt
         self._web_retriever = web_retriever
 
-        self.llm, error = _initialize_llm("gemini-pro")
+        self.llm, error = _initialize_llm("gemini-1.5-pro")
         if error:
             self.error = error
             return

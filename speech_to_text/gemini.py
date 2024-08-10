@@ -5,11 +5,11 @@ from pydub.playback import play
 from google.cloud import texttospeech
 
 
-def speech_to_text() -> dict:
+def speech_to_text() -> str:
     genai.configure()
 
     audio_file = genai.upload_file(path='output.wav')
-    model = genai.GenerativeModel(model_name="gemini-1.5-flash")
+    model = genai.GenerativeModel(model_name="gemini-1.5-pro")
     speech_to_text_prompt = """Use the audio for the following and provide a JSON response with the following keys:
             * language: The language of the input text.
             * text: A proper English translation understandable by a native English speaker.
@@ -17,16 +17,7 @@ def speech_to_text() -> dict:
     """
     response = model.generate_content([speech_to_text_prompt, audio_file])
     response = response.text
-    response_list = response.splitlines()
-    response_list.pop(0)
-    response_list.pop(-1)
-    response = "\n".join(response_list)
-    try:
-        response_dict = json.loads(response)
-    except Exception as e:
-        print("Error while converting to dictionary" + e.__str__())
-        raise e
-    return response_dict
+    return response
 
 
 def tts(message, language):
