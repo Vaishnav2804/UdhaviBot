@@ -1,7 +1,4 @@
 import google.generativeai as genai
-import json
-from pydub import AudioSegment
-from pydub.playback import play
 from google.cloud import texttospeech
 
 
@@ -35,6 +32,3 @@ def tts(message, language):
     with open("output.mp3", "wb") as out:
         out.write(response.audio_content)
         print('Audio content written to file "output.mp3"')
-
-    # song = AudioSegment.from_mp3("output.mp3")
-    # play(song)

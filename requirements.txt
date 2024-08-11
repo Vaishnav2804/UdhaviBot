@@ -33,6 +33,7 @@ google-auth
 google-auth-httplib2
 google-generativeai
 googleapis-common-protos
+google-cloud-texttospeech
 grpcio
 grpcio-status
 h11
@@ -56,6 +57,7 @@ langchain-core
 langchain-google-genai
 langchain-huggingface
 langchain-text-splitters
+langchain_google_vertexai
 langsmith
 markdown-it-py
 MarkupSafe
@@ -107,6 +109,7 @@ rsa
 safetensors
 scikit-learn
 scipy
+selenium
 sentence-transformers
 shellingham
 six
