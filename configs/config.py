@@ -2,7 +2,7 @@ from dotenv import load_dotenv
 import os
 import getpass as getpass
 from langchain_huggingface import HuggingFaceEmbeddings
-
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 load_dotenv()
 
 CHUNK_SIZE = 2400
@@ -26,11 +26,12 @@ HEADERS = {
 }
 TOTAL_RESULTS = 2389
 MAX_SIZE = 100
-EMBEDDINGS = HuggingFaceEmbeddings(
-    model_name="sentence-transformers/all-mpnet-base-v2",
-    model_kwargs={"device": "cpu"},
-)
+# EMBEDDINGS = HuggingFaceEmbeddings(
+#     model_name="sentence-transformers/all-mpnet-base-v2",
+#     model_kwargs={"device": "cuda"},
+# )
 
+EMBEDDINGS = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
 START_WEB_SCRAPING_MYSCHEMES = False
 
 

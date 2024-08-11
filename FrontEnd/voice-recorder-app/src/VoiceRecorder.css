@@ -1,0 +1,210 @@
+/* MonoVoiceRecorder.css */
+
+.recorder-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .input-mode-toggle {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  
+  .toggle-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    margin: 0 10px;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    display: flex;
+    align-items: center;
+  }
+  
+  .toggle-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .toggle-button:hover:not(:disabled) {
+    background-color: #0056b3;
+  }
+  
+  .text-input {
+    width: 100%;
+    max-width: 400px;
+    height: 100px;
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    margin-bottom: 20px;
+  }
+  
+  .submit-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .submit-button:disabled {
+    background-color: #6c757d;
+    cursor: not-allowed;
+  }
+  
+  .submit-button:hover:not(:disabled) {
+    background-color: #218838;
+  }
+  
+
+  
+  .processed-text {
+    margin-top: 20px;
+  }
+  
+  .loading-icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px;
+    color: #ff4500;
+  }
+  
+  .loading-icon-container p {
+    margin-top: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+  }
+  
+  .control-button {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  
+  .control-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+  
+  .control-button:active {
+    transform: scale(0.9);
+  }
+  
+  .control-button:focus {
+    outline: none;
+  }
+
+
+
+  /* MonoVoiceRecorder.css */
+
+.mic-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+  color: green; /* Set microphone color to green */
+}
+
+.mic-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.mic-button:active {
+  transform: scale(0.9);
+}
+
+.mic-button:focus {
+  outline: none;
+}
+
+/* Additional styles if needed */
+.control-button {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.control-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.control-button:active {
+  transform: scale(0.9);
+}
+
+.control-button:focus {
+  outline: none;
+}
+
+/* VoiceRecorder.css */
+
+.output-container {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.output-textbox {
+  width: 100%;
+  max-width: 100%;
+  min-height: 50px;  /* Minimum height for the box */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  resize: none;  /* Disable manual resizing by the user */
+  overflow: hidden;  /* Hide the scrollbar */
+  white-space: pre-wrap;  /* Preserve white space and wrap text */
+  word-wrap: break-word;  /* Handle long words */
+}
+
+/* VoiceRecorder.css */
+
+.output-container {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.output-textbox {
+  width: 100%;
+  max-width: 100%;
+  min-height: 50px;  /* Minimum height for the box */
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-top: 10px;
+  background-color: #333;  /* Dark background to match the theme */
+  color: #f0f0f0;  /* Light white color for the text */
+  resize: none;  /* Disable manual resizing by the user */
+  overflow: hidden;  /* Hide the scrollbar */
+  white-space: pre-wrap;  /* Preserve white space and wrap text */
+  word-wrap: break-word;  /* Handle long words */
+  text-align: left;
+}
+
+.output-textbox:focus {
+  outline: none;
+}
+
+.output-textbox.auto-expand {
+  height: auto;  /* Let the height adjust based on the content */
+}

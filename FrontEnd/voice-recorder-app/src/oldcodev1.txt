@@ -1,0 +1,65 @@
+import React, { useState } from 'react';
+import { ReactMic } from 'react-mic';
+import axios from 'axios';
+
+const VoiceRecorder = () => {
+  const [recording, setRecording] = useState(false);
+  const [processedAudioURL, setProcessedAudioURL] = useState('');
+
+  const startRecording = () => {
+    setRecording(true);
+  };
+
+  const stopRecording = () => {
+    setRecording(false);
+  };
+
+  const onStop = async (recordedBlob) => {
+    // Automatically upload the audio file when recording stops
+    const formData = new FormData();
+    formData.append('file', recordedBlob.blob, 'audio.wav');
+
+    try {
+      const response = await axios.post('http://172.31.10.39:8000/chat', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+        responseType: 'blob', // Receive the response as a Blob
+      });
+
+      // Create a URL for the processed audio Blob
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: 'audio/mpeg' }));
+      setProcessedAudioURL(url);
+
+      // Automatically play the processed audio
+      const audio = new Audio(url);
+      audio.play();
+
+      // Clean up the URL after playing
+      audio.onended = () => {
+        window.URL.revokeObjectURL(url);
+      };
+
+    } catch (error) {
+      console.error('Error processing audio:', error);
+    }
+  };
+
+  return (
+    <div>
+      <ReactMic
+        record={recording}
+        className="sound-wave"
+        onStop={onStop}
+        strokeColor="#000000"
+        backgroundColor="#FF4081"
+      />
+      <div>
+        <button onClick={startRecording} disabled={recording}>Start Recording</button>
+        <button onClick={stopRecording} disabled={!recording}>Stop Recording</button>
+      </div>
+    </div>
+  );
+};
+
+export default VoiceRecorder;

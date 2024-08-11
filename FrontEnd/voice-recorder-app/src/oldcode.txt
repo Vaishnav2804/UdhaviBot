@@ -1,0 +1,74 @@
+// src/VoiceRecorder.js
+import React, { useState } from 'react';
+import { ReactMic } from 'react-mic';
+import axios from 'axios';
+
+const VoiceRecorder = () => {
+  const [recording, setRecording] = useState(false);
+  const [audioBlob, setAudioBlob] = useState(null);
+  const [audioURL, setAudioURL] = useState('');
+
+  const startRecording = () => {
+    setRecording(true);
+  };
+
+  const stopRecording = () => {
+    setRecording(false);
+  };
+
+  const onData = (recordedBlob) => {
+    // Handle real-time data here
+  };
+
+  const onStop = (recordedBlob) => {
+    setAudioBlob(recordedBlob.blob);
+  };
+
+  const uploadAudio = async () => {
+    if (audioBlob) {
+      const formData = new FormData();
+      formData.append('file', audioBlob, 'audio.wav');
+
+      try {
+        const response = await axios.post('http://172.31.10.39:8000/chat', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+          responseType: 'blob'
+        });
+        const url = window.URL.createObjectURL(new Blob([response.data], { type: 'audio/mpeg' }));
+        setAudioURL(url);
+      } catch (error) {
+        console.error('Error uploading audio:', error);
+      }
+    }
+  };
+
+  const playAudio = () => {
+    if (audioURL) {
+        const audio = new Audio(audioURL);
+        audio.play();
+      }
+  };
+
+  return (
+    <div>
+      <ReactMic
+        record={recording}
+        className="sound-wave"
+        onStop={onStop}
+        onData={onData}
+        strokeColor="#000000"
+        backgroundColor="#FF4081"
+      />
+      <div>
+        <button onClick={startRecording} disabled={recording}>Start Recording</button>
+        <button onClick={stopRecording} disabled={!recording}>Stop Recording</button>
+        <button onClick={uploadAudio} disabled={!audioBlob}>Upload and Process</button>
+        {audioURL && <button onClick={playAudio}>Play Processed Audio</button>}
+      </div>
+    </div>
+  );
+};
+
+export default VoiceRecorder;

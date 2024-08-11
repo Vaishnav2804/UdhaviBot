@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field
 import logging
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
-
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 # Import your existing modules
 from llm_setup.llm_setup import LLMService
 import configs.config as config
@@ -42,25 +42,8 @@ class Language(BaseModel):
     language_code: str
 
 
-# Define the prompt template for the chatbot
-prompt = """You are an expert chatbot designed to provide detailed, accurate, and up-to-date information about Indian 
-government schemes. Your role is to assist users with inquiries related to government programs in areas such as 
-education, healthcare, agriculture, and insurance. When responding, ensure that your answers are clear, informative, 
-and grounded in the most recent and relevant information.
-
-If a user asks about eligibility, application processes, or benefits, provide specific and actionable details, 
-guiding them through any necessary steps if applicable. Always strive to offer helpful, precise responses tailored to 
-the user’s needs.
-
-Strictly In response include the scheme name, url, details, benefits, documents required and application process.
-
-Use the provided context: {context} to inform your answer. Respond to the user's query: {question} in a 
-straightforward and simple manner (not in any markdown format). Only accept and respond to questions within the given 
-context. The response should be in simple text format, suitable for use by a conversational robot. 
-Do not add any markdown format."""
-
 # Initialize the LLMService
-llm_svc = LLMService(logger, prompt, retriever)
+llm_svc = LLMService(logger, "", retriever)
 if llm_svc.error is not None:
     logger.error(f"Error initializing LLM service: {llm_svc.error}")
 
@@ -116,32 +99,35 @@ async def chat(
         user_language = response_dict['language']
         user_input = response_dict['text']
         user_language_code = response_dict["language_code"]
+        print(user_language_code, user_input, user_language)
 
         docs = chroma.similarity_search(user_input)
         context = ""
+        i=0
         for doc in docs:
+            if i>3:
+                break
             context += doc.page_content
+            i+=1
 
         if context == "":
             return "I don't have an answer to this question."
 
         print(f"Context is: {context}")
 
-        prompt = f"""You are an expert chatbot designed to provide detailed, accurate, and up-to-date information about Indian 
-        government schemes. Your role is to assist users with inquiries related to government programs in areas such as 
-        education, healthcare, agriculture, and insurance. When responding, ensure that your answers are clear, informative, 
-        and grounded in the most recent and relevant information.
+        prompt = f"""You are a highly knowledgeable assistant specializing in Indian government schemes. Your task is to provide clear, accurate, 
+        and actionable information to users about various government programs related to areas like education, healthcare, agriculture, and insurance. 
+        Your responses should be grounded in the provided context and include details about the scheme name, specific benefits, and eligibility criteria. 
+        The response should be tailored to the user's needs and presented in three distinct sections: Scheme Name, Benefits, and Eligibility. 
+        Ensure the information is delivered in a straightforward, conversational manner without using markdown formatting. 
+        Do not include any * or # in the output and use numbers for bullet points if needed.
+        Give output within 3000 bytes.
+
+        Example Query: {user_input}
+
+        Context to use in the response: {context}"""
         
-        If a user asks about eligibility, application processes, or benefits, provide specific and actionable details, 
-        guiding them through any necessary steps if applicable. Always strive to offer helpful, precise responses tailored to 
-        the user’s needs.
-        
-        Strictly In response include the scheme name, url, details, benefits, documents required and application process.
-        
-        Use the provided context: {context} to inform your answer. Respond to the user's query: {user_input} in a 
-        straightforward and simple manner (not in any markdown format). The response should be in simple text format, 
-        suitable for use by a conversational robot."""
-        prompt += f'Strictly give me the answer in {user_language}'
+        prompt += f'Strictly give me the answer in {user_language}. Language code: {user_language_code}'
 
         # response = llm_svc.conversational_rag_chain().invoke(user_input)
 
