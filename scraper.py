@@ -1,3 +1,4 @@
+import copy
 import json
 import os
 import logging
@@ -97,9 +98,12 @@ class MySchemeScraper:
         return scheme_links
 
 
-if __name__ == '__main__':
-    download_path = os.path.join(os.path.dirname(__file__), 'myschemes_scraped.json')
-    scraper = MySchemeScraper()
-    scraped_scheme_details = scraper.download()
-    with open(download_path, 'w') as file:
-        json.dump(scraped_scheme_details, file)
+def scrape_and_store_to_json_file():
+    try:
+        download_path = os.path.join(os.path.dirname(__file__), 'myschemes_scraped.json')
+        scraper = MySchemeScraper()
+        scraped_scheme_details = scraper.download()
+        with open(download_path, 'w') as file:
+            json.dump(scraped_scheme_details, file)
+    except Exception as e:
+        raise e
