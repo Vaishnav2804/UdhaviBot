@@ -12,7 +12,7 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 - Embedding: GoogleGenerativeAIEmbeddings
 
 ## How to Run Python Backend Code (FastAPI):
-1. Install Python [Python Installation](https://www.python.org/downloads/)
+1. Install Python: Refer [Python Installation](https://www.python.org/downloads/)
 2. Git clone this repository
 3. Create a new virtualenv:
     ```bash
