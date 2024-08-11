@@ -11,6 +11,23 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 - LLM: Gemini 1.5 Pro API Key
 - Embedding: GoogleGenerativeAIEmbeddings
 
+## How to Run Python Code:
+1. Install Python [Python Installation](https://www.python.org/downloads/)
+2. Git clone this repository
+3. Create a new virtualenv:
+    ```bash
+    python3 -m venv venv
+    source ./venv/bin/activate
+    ```
+4. Install all required libraries from `requirements.txt`
+    ```bash
+    pip install -r requirements.txt
+    ```
+5. Run python app
+    ```bash
+    python3 app.py
+    ```
+
 ## Introduction to the Problem
 Imagine millions of people across India—rural villagers, senior citizens, and the underserved—struggling to access vital government schemes simply because the information is buried in complex documents or not available in their language. This is a massive barrier to the benefits they are entitled to.
 
