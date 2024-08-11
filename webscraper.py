@@ -1,4 +1,3 @@
-import copy
 import json
 import os
 import logging
@@ -97,42 +96,10 @@ class MySchemeScraper:
         self.driver.quit()
         return scheme_links
 
-    def combine_myscheme_provided_and_scraped_data(self, scraped_scheme_details):
-        with open('myScheme-data.json') as file:
-            myscheme_structured_data = json.load(file)['hits']['hits']
-
-        individual_beneficiary_types = ['Individual', 'Family', 'Sportsperson', 'Journalist']
-        myscheme_structured_data = [scheme for scheme in myscheme_structured_data if any(
-            i in individual_beneficiary_types for i in scheme['_source']['targetBeneficiaries'])]
-
-        required_fields_from_structured_data = ['schemeShortTitle', 'schemeCategory', 'schemeSubCategory', 'gender',
-                                                'minority',
-                                                'beneficiaryState', 'residence', 'caste', 'disability', 'occupation',
-                                                'maritalStatus', 'education', 'age', 'isStudent', 'isBpl']
-
-        myscheme_structured_data_dict = {i['_source']['schemeName'].lower().strip(): i['_source'] for i in
-                                         myscheme_structured_data}
-
-        combined_schemes_data = []
-        for scheme in scraped_scheme_details:
-            structured_info = myscheme_structured_data_dict.get(scheme['scheme_name'].lower().strip())
-            if structured_info is not None:
-                structured_info = {k: v for k, v in structured_info.items() if
-                                   k in required_fields_from_structured_data}
-                scheme.update(structured_info)
-            combined_schemes_data.append(copy.deepcopy(scheme))
-
-        return combined_schemes_data
-
 
 if __name__ == '__main__':
-    download_path = os.path.join(os.path.dirname(__file__), 'myschemes_scraped_9feb.json')
+    download_path = os.path.join(os.path.dirname(__file__), 'myschemes_scraped.json')
     scraper = MySchemeScraper()
     scraped_scheme_details = scraper.download()
     with open(download_path, 'w') as file:
         json.dump(scraped_scheme_details, file)
-
-    combined_schemes_data = scraper.combine_myscheme_provided_and_scraped_data(scraped_scheme_details)
-    output_path = os.path.join(os.path.dirname(__file__), 'myschemes_scraped_combined_9feb.json')
-    with open(output_path, 'w') as file:
-        json.dump(combined_schemes_data, file)
