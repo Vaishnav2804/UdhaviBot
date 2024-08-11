@@ -11,7 +11,7 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 - LLM: Gemini 1.5 Pro API Key
 - Embedding: GoogleGenerativeAIEmbeddings
 
-## How to Run Python Code:
+## How to Run Python Backend Code (FastAPI):
 1. Install Python [Python Installation](https://www.python.org/downloads/)
 2. Git clone this repository
 3. Create a new virtualenv:
