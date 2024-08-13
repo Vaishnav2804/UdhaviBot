@@ -32,7 +32,7 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 
 2.⁠ ⁠Follow the instructions depending on version/Os type
 
-3.⁠ ⁠Git clone the repo and go to Frontend/voice-recorder-app
+3.⁠ ⁠Git clone the repo and go to ```Frontend/voice-recorder-app```
 
 4.⁠ ⁠Run the command: ```npm start```
 
