@@ -39,7 +39,10 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 ## Architecture Diagram
 <img width="1440" alt="Screenshot 2024-08-13 at 12 58 56 PM" src="https://github.com/user-attachments/assets/5c13ff2e-bafd-4648-a17b-3e81dc02d2a4">
 
-              
+## Live Demo
+
+![Text Demo gif](https://github.com/user-attachments/assets/7bab4717-54eb-42cf-81b9-830a2eb60063)
+
 ## Introduction to the Problem
 Imagine millions of people across India—rural villagers, senior citizens, and the underserved—struggling to access vital government schemes simply because the information is buried in complex documents or not available in their language. This is a massive barrier to the benefits they are entitled to.
 
