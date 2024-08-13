@@ -35,6 +35,10 @@ UdhaviBot is a chatbot designed to assist and empower underserved individuals by
 3.⁠ ⁠Git clone the repo and go to Frontend/voice-recorder-app
 
 4.⁠ ⁠Run the command: ```npm start```
+
+## Architecture Diagram
+<img width="1440" alt="Screenshot 2024-08-13 at 12 58 56 PM" src="https://github.com/user-attachments/assets/5c13ff2e-bafd-4648-a17b-3e81dc02d2a4">
+
               
 ## Introduction to the Problem
 Imagine millions of people across India—rural villagers, senior citizens, and the underserved—struggling to access vital government schemes simply because the information is buried in complex documents or not available in their language. This is a massive barrier to the benefits they are entitled to.
