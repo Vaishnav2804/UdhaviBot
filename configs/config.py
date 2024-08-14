@@ -22,7 +22,7 @@ HEADERS = {
     'sec-fetch-mode': 'cors',
     'sec-fetch-site': 'same-site',
     'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-    'x-api-key': 'tYTy5eEhlu9rFjyxuCr7ra7ACp4dv1RH8gWuHTDc'
+    'x-api-key': '<add your X-API-KEY for this website'
 }
 TOTAL_RESULTS = 2389
 MAX_SIZE = 100
