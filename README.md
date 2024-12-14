@@ -2,6 +2,9 @@
 
 UdhaviBot is a chatbot designed to assist and empower underserved individuals by providing information on government policies related to education, healthcare (with a focus on maternal and children), agriculture, insurance and many government schemes. The chatbot aims to bridge the information gap and help users access the support and resources they need.
 
+
+## Find the jounral here: [link](https://repository-ijsra.com/sites/default/files/IJSRA-2024-1747.pdf)
+
 ## Technologies Used
 - Backend: Python
 - Frontend: React, HTML, CSS, JavaScript
